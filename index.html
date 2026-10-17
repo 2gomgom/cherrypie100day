@@ -773,6 +773,8 @@ html[data-v=pc] #hint{align-items:center;justify-content:center;text-align:cente
 /* ===== v127 PC 성능: 3D 화면 위 반투명 블러(backdrop-filter) 제거 — 패널 배경이 거의 불투명이라 모양은 그대로, GPU 부담만 크게 줄어듦 ===== */
 html[data-v=pc] *,html[data-v=pc] *::before,html[data-v=pc] *::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 html[data-v=pc] .npci{filter:drop-shadow(0 4px 4px rgba(107,58,70,.26))}
+/* v135: 주문서 머리글(주문서 알약 · 제목) 가운데 정렬 — 접기 버튼 자리용 오른쪽 여백 때문에 왼쪽으로 치우치던 것 제거 (버튼은 absolute 라 여백 불필요) */
+html[data-v=pc] #pcL .pcc:first-child h3{padding-left:0;padding-right:0;text-align:center}
 </style></head><body>
 <canvas id="pcbg"></canvas>
 <script>
@@ -840,7 +842,6 @@ new MutationObserver(run).observe(document.documentElement,{attributes:true,attr
 let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(tm){build();frame()}},150)});run();
 })();
 </script>
-<div id="vt"><button data-v="auto" class="on">자동</button><button data-v="m">모바일</button><button data-v="pc">PC</button></div>
 <div id="app"><div id="dco" aria-hidden="true"><i class="stitch"></i><i class="bn"></i><div class="stk l"><svg viewBox="0 0 230 190" aria-hidden="true"><defs><symbol id="cher1" viewBox="0 0 60 56"><g fill="none" stroke="#8A5A48" stroke-width="3" stroke-linecap="round"><path d="M31 4Q24 20 16 38"/><path d="M31 4Q42 18 44 36"/></g><path d="M31 4q10-4 17 2q-9 5-17-2z" fill="#E8909F"/><circle cx="16" cy="42" r="13" fill="#D8344F" stroke="#A8283F" stroke-width="2"/><circle cx="44" cy="40" r="13" fill="#D8344F" stroke="#A8283F" stroke-width="2"/><ellipse cx="11" cy="37" rx="4" ry="2.6" fill="#fff" opacity=".6" transform="rotate(-30 11 37)"/><ellipse cx="39" cy="35" rx="4" ry="2.6" fill="#fff" opacity=".6" transform="rotate(-30 39 35)"/></symbol>
 <symbol id="pie1" viewBox="-100 -100 200 200"><circle r="96" fill="#F4C4A8" stroke="#D9936F" stroke-width="4"/><circle r="88" fill="none" stroke="#D9936F" stroke-width="4" stroke-dasharray="6 9" stroke-linecap="round"/><circle r="74" fill="#C2334D"/><clipPath id="pc1"><circle r="74"/></clipPath><g clip-path="url(#pc1)" fill="#F4C4A8"><g transform="rotate(45)"><rect x="-120" y="-44" width="240" height="14"/><rect x="-120" y="-7" width="240" height="14"/><rect x="-120" y="30" width="240" height="14"/></g><g transform="rotate(-45)"><rect x="-120" y="-44" width="240" height="14"/><rect x="-120" y="-7" width="240" height="14"/><rect x="-120" y="30" width="240" height="14"/></g></g><g fill="#E8445E"><circle cx="0" cy="-50" r="11"/><circle cx="50" cy="0" r="11"/><circle cx="0" cy="50" r="11"/><circle cx="-50" cy="0" r="11"/><circle r="12"/></g><g fill="#fff" opacity=".6"><circle cx="-3" cy="-54" r="3"/><circle cx="47" cy="-4" r="3"/><circle cx="-3" cy="46" r="3"/><circle cx="-53" cy="-4" r="3"/><circle cx="-3" cy="-4" r="3"/></g></symbol>
 <symbol id="spk1" viewBox="0 0 20 20"><path d="M10 0Q11 9 20 10Q11 11 10 20Q9 11 0 10Q9 9 10 0z" fill="#fff"/></symbol>
@@ -2550,7 +2551,8 @@ pcL.innerHTML=`<div class="glass pcc"><h3><i class="tkh">${stEsc(tkSplit(tkL[0])
  h3.addEventListener('click',tg);h3.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();tg()}})}}   /* 주문서 접기/펼치기 (PC) */
 function pcSync(i){pcL.querySelectorAll('li').forEach((li,k)=>{li.className=k<i?'done':k==i?'on':''})}
 /* 화면 모드: 자동 = 폭 900px↑ 가로형이면 PC / 📱·로 수동 고정(는 가로형 화면에서만 PC 배치 적용) */
-let vMode=(()=>{try{const v=sessionStorage.getItem('cherrypie.v92.vmode');sessionStorage.removeItem('cherrypie.v92.vmode');return v==='m'||v==='pc'?v:'m'}catch(_){return 'm'}})();const vtB=document.querySelectorAll('#vt button');
+/* v135: 화면 모드 선택 버튼 제거 — 기기에 따라 자동 결정: 폰(터치 + 작은 화면 / 모바일 UA) = 모바일 화면, PC·노트북 = 창 크기에 맞는 PC 화면 */
+let vMode=(()=>{try{const ua=navigator.userAgent||'',mob=/Android.+Mobile|iPhone|iPod|Windows Phone|Mobile Safari/i.test(ua),sm=Math.min(screen.width,screen.height)<=600,co=matchMedia('(pointer:coarse)').matches;return(mob||(co&&sm))?'m':'auto'}catch(_){return 'auto'}})();const vtB=document.querySelectorAll('#vt button');
 /* 미리보기 규칙 (진입 로딩창 미리보기와 같은 방식): 화면은 항상 브라우저 창 전체(inset:0)를 채우고, 글자·UI 크기는 창 크기(vw/vh)에 맞춰 유동적으로 변한다.
    · 자동 / PC : 프레임 없음. 창이 가로로 충분하면(너비 640px↑, 가로/세로 0.9↑) PC 배치, 아니면 같은 UI 를 세로 배치로 꽉 채움
    · 모바일    : 휴대폰 프레임 + 세로형 (기존 그대로) */
